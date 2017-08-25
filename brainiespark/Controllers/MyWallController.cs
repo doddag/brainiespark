@@ -160,7 +160,7 @@ namespace brainiespark.Controllers
                 return;
 
             //if (!Request.IsAuthenticated)
-            //    throw new HttpException((int)System.Net.HttpStatusCode.Forbidden, "Forbidden");
+               // throw new HttpException((int)System.Net.HttpStatusCode.Forbidden, "Forbidden");
 
             Response.ContentType = "text/event-stream";
 
@@ -170,7 +170,7 @@ namespace brainiespark.Controllers
                 return;
 
 
-            var notifications = Utils.GetNotificationMessage(User.Identity.GetUserId(), Context);
+            var notifications = Utils.GetNotificationMessage(!Request.IsAuthenticated ? null : User.Identity.GetUserId(), Context);
             if (notifications == null)
                 return;
 
