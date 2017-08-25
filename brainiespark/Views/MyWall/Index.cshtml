@@ -1,0 +1,204 @@
+﻿
+@using Microsoft.AspNet.Identity
+@using Newtonsoft.Json
+@model brainiespark.Models.NewNotificationViewModel
+
+@{
+    ViewBag.Title = "MyWall";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="panel panel-primary">
+    <div class="panel-heading">
+        <h3 class="panel-title">Welcome @User.Identity.GetUserName()</h3>
+        <audio id="messageArrived" controls="" style="visibility: hidden;">
+            <source src="~/Content/sounds/messageArrieved.mp3" type="audio/mpeg" />
+        </audio>
+    </div>
+    <div id="notificaionPanelBody" class="panel-body-scroll">
+        <ul class="nav nav-tabs">
+            <li class="active"><a href="#postNotification" data-toggle="tab" aria-expanded="true">Post Notification</a></li>
+            <li class="" id="NotificationCount"></li>
+            <li class="disabled"><a>Disabled</a></li>
+            <li class="dropdown">
+                <a class="dropdown-toggle" data-toggle="dropdown" href="#">
+                    Notifications <span class="caret"></span>
+                </a>
+                <ul class="dropdown-menu">
+                    <li><a href="#post" data-toggle="tab">Post</a></li>
+                    <li class="divider"></li>
+                    <li><a href="#edit" data-toggle="tab">Modify</a></li>
+                </ul>
+            </li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active in" id="postNotification">
+                <div class="panel-body-scroll" style="min-height: 390px;">
+                    @using (Html.BeginForm("CreateNotification", "MyWall", FormMethod.Post, new { @class = "form-horizontal", id = "mywall", enctype = "multipart/form-data" }))
+                    {
+                        @Html.ValidationSummary()
+                        ;
+                        <table class="table-condensed">
+                            <tbody>
+                                <tr>
+                                    <td class="col-xs-3">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">Dates</h3>
+                                            </div>
+                                            <div class="panel-body" style="max-height: 175px; min-height: 150px;">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Notification.NotificationDate)
+                                                    @Html.TextBoxFor(m => m.Notification.NotificationDate, new { @class = "form-control", type = "date", style = "width: 100%;" })
+                                                    @Html.ValidationMessageFor(m => m.Notification.NotificationDate)
+
+                                                    @Html.LabelFor(m => m.Notification.NotificationExpiry)
+                                                    @Html.TextBoxFor(m => m.Notification.NotificationExpiry, new { @class = "form-control", type = "date" })
+                                                    @Html.ValidationMessageFor(m => m.Notification.NotificationExpiry)
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">Settings</h3>
+                                            </div>
+                                            <div class="panel-body" style="max-height:150px; min-height: 100px;">
+                                                <div class="form-group">
+                                                    <div class="checkbox">
+                                                        <label>
+                                                            @Html.CheckBoxFor(m => m.Notification.IsPublic)Public Notification
+                                                        </label>
+                                                    </div>
+                                                    <div class="checkbox">
+                                                        <label>
+                                                            @Html.CheckBoxFor(m => m.Notification.IsActive)Active
+                                                        </label>
+                                                    </div>
+
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="col-xs-3">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <h3 class="panel-title">Recipient(s)</h3>
+                                            </div>
+                                            <div class="panel-body-scroll" style="max-height: 360px; min-height: 360px;">
+                                                <div class="form-group">
+                                                    @Html.LabelFor(m => m.Notification.ToUserId)
+                                                    @Html.DropDownListFor(m => m.Notification.ToUserId, new SelectList(Model.Users, "Id", "Email"), "", new { @class = "form-control", style = "width:100%" })
+                                                    @Html.ValidationMessageFor(m => m.Notification.ToUserId)
+
+                                                    @Html.LabelFor(m => m.Notification.Message)
+                                                    @Html.TextAreaFor(m => m.Notification.Message, 8, 520, new { @class = "form-control" })
+                                                    @Html.ValidationMessageFor(m => m.Notification.Message)
+                                                   
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="col-xs-6">
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading">
+                                                <button id="addFiles" class="btn btn-primary btn-xs">Choose Image File(s)</button>
+                                                <input class="" name="files" type="file" id="fileinput" accept="image/*" multiple="multiple" style="width: 100%; display: none" />
+                                            </div>
+                                            <div id="thumbs" class="panel-body-scroll" style="max-height: 350px; min-height: 350px;">
+
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <tr></tr>
+                        </table>
+
+
+                        <div class="form-group">
+                            @Html.Hidden("AttachmentsToIgnore")
+                            <button type="submit" class="btn btn-primary" style="float: right">Post</button>
+                            @Html.AntiForgeryToken()
+                        </div>
+
+
+                    }
+                    </div>
+                </div>
+            <div class="tab-pane fade" id="notifications">
+                <div id="MyWallNotifications" class="panel-body-scroll"  style="max-height: 400px; min-height: 390px;">
+                </div>
+            </div>
+            <div class="tab-pane fade" id="post">
+            </div>
+            <div class="tab-pane fade" id="edit">
+                <p>Trust fund seitan letterpress, keytar raw denim keffiyeh etsy art party before they sold out master cleanse gluten-free squid scenester freegan cosby sweater. Fanny pack portland seitan DIY, art party locavore wolf cliche high life echo park Austin. Cred vinyl keffiyeh DIY salvia PBR, banh mi before they sold out farm-to-table VHS viral locavore cosby sweater.</p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal" id="modelWindow" align="center">
+    <div class="modal-body" >...</div>
+    <div id="msg" class="modal-body" style="max-height: 250px">
+        <div class="progress progress-striped active" style="width: 50%">
+            <div class="progress-bar" style="width: 45%"></div>
+        </div>
+    </div>
+</div>
+
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+<script>
+
+    @functions
+    {
+        public string Token()
+        {
+            string cookieToken, thisToken;
+            AntiForgery.GetTokens(null, out cookieToken, out thisToken);
+            return cookieToken + ":" + thisToken;
+        }
+
+    }
+
+    function OnRead(notificationId, notificationElementId, token) {
+        var url = '@Url.Action("ViewNotification", "ViewNotification")';
+        var parm = { id: notificationId };
+
+        $('#msg').load(url, { id: notificationId },
+        function(data1) {
+            var data = $(data1);
+            $("#msg").html(data);
+        });
+        $('#modelWindow').modal('show');
+    }
+
+
+    if (typeof (window.EventSource) !== "undefined") {
+        var receivedCount = 0;
+        var source = new window.EventSource("../MyWall/Message?user=@User.Identity.GetUserName()");
+        source.onmessage = function (event) {
+            addNotification(event, "MyWallNotifications", '@Token()');
+        };
+    } else {
+        document.getElementById("MyWallNotificationMessage").innerHTML =
+            "Sorry, your browser does not support Notifications...";
+    }
+
+    $('#addFiles').on('click', function() {
+        $('#fileinput').click();
+        return false;
+    });
+
+    $(document).ready(function () {
+        reSyncActiveNoifications('@Token()');
+    });
+
+</script>
+
+<script src="~/Scripts/Custom/Upload.js"></script>
+<script src="~/Scripts/Custom/Notifications.js"></script>
+
+@section scripts
+{
+    @Scripts.Render("~/bundles/jqueryval")
+}

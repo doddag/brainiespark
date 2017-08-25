@@ -1,0 +1,10 @@
+﻿#floater {
+    position: absolute;
+    top: 100px;
+    right: 1px;
+    width: 100px;
+    height: 100px;
+    -webkit-transition: all 2s ease-in-out;
+    transition: all 2s ease-in-out;
+    z-index: 1;
+}
