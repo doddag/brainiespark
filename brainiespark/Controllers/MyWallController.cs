@@ -159,8 +159,8 @@ namespace brainiespark.Controllers
             if (!ModelState.IsValid)
                 return;
 
-            //if (!Request.IsAuthenticated)
-            //    throw new HttpException((int)System.Net.HttpStatusCode.Forbidden, "Forbidden");
+            if (!Request.IsAuthenticated)
+                throw new HttpException((int)System.Net.HttpStatusCode.Forbidden, "Forbidden");
 
             Response.ContentType = "text/event-stream";
 
