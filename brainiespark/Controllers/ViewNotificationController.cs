@@ -1,11 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data.Entity;
+﻿using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
-using System.Net.Http.Headers;
-using System.Web;
 using System.Web.Http;
 using System.Web.Mvc;
 using brainiespark.Models;
@@ -17,9 +13,9 @@ namespace brainiespark.Controllers
     {
         public ApplicationDbContext Context { get; }
 
-        public ViewNotificationController()
+        public ViewNotificationController(ApplicationDbContext context)
         {
-            Context = new ApplicationDbContext();
+            Context = context;
         }
 
         // GET: ViewNotification

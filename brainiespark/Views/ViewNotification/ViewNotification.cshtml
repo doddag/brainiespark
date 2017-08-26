@@ -17,7 +17,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <body>
     <div class="jumbotron" style="width: 100%; min-height: 600px; min-height: 800px">
-        <button type="button" class="btn btn-link" data-dismiss="modal" style="float: right"><h3>X</h3></button>
+        <button type="button" class="btn btn-link" data-dismiss="modal" style="float: right">X</button>
 
         <div style="width: 100%; height: auto">
             <div class="w3-content w3-display-container" align="center" style="width: 100%; min-height: 500px; max-height: 500px">
@@ -33,7 +33,7 @@
             <button class="" style="margin-left: 20%;" onclick="plusDivs(-1)">&#10094;</button>
             <button class="w3-button w3-display-right" style="margin-right: 20%" onclick="plusDivs(1)">&#10095;</button>
             <div class="panel panel-info">
-                <div class="panel-heading" style="min-height: 40px">
+                <div class="panel-heading" style="min-height: 40px; vertical-align: bottom">
                     <h3 class="panel-title" style="float: left">@Model.Notification.NotificationDate</h3>
                     <h3 class="panel-title" style="float: right">Expire's on: @Model.Notification.NotificationExpiry.ToString($"dd/MM/yyyy")</h3>
                 </div>

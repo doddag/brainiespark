@@ -1,24 +1,18 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Web;
+﻿using System.Net;
 using System.Web.Http;
 using System.Web.Mvc;
 using brainiespark.Helpers;
 using brainiespark.Models;
-using Microsoft.AspNet.Identity;
 
 namespace brainiespark.Controllers
 {
     public class HomeController : Controller
     {
-        public ApplicationDbContext Context { get; }
+        private readonly ApplicationDbContext Context;
 
-        public HomeController()
+        public HomeController(ApplicationDbContext context)
         {
-            Context = new ApplicationDbContext();
+            Context = context;
         }
 
         public ActionResult Index()

@@ -1,11 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data.Entity;
-using System.Data.Entity.Validation;
-using System.Globalization;
-using System.IO;
 using System.Linq;
-using System.Net.Http;
 using System.Web;
 using System.Web.Mvc;
 using brainiespark.Helpers;
@@ -17,13 +12,12 @@ namespace brainiespark.Controllers
 {
     public class MyWallController : Controller
     {
-        public ApplicationDbContext Context { get; }
         private readonly Action<string> _messageAction;
- 
+        private readonly ApplicationDbContext Context;
 
-        public MyWallController()
+        public MyWallController(ApplicationDbContext context)
         {
-            Context = new ApplicationDbContext();
+            Context = context;
             _messageAction += MessageAction;
         }
 
@@ -66,11 +60,11 @@ namespace brainiespark.Controllers
         /// </summary>
         /// <param name="notification"></param>
         /// <param name="files"></param>
-        /// <param name="AttachmentsToIgnore"></param>
+        /// <param name="attachmentsToIgnore"></param>
         /// <returns></returns>
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult CreateNotification(Notification notification, IEnumerable<HttpPostedFileBase> files, string AttachmentsToIgnore)
+        public ActionResult CreateNotification(Notification notification, IEnumerable<HttpPostedFileBase> files, string attachmentsToIgnore)
         {
             if (!ModelState.IsValid)
             {
@@ -84,74 +78,12 @@ namespace brainiespark.Controllers
                 return View("Index", viewModel);
             }
 
-            var httpPostedFile = HttpContext.Request.Files[0];
-
-            notification.NotificationDate = DateTime.Now;
-            notification.ByUserId = User.Identity.GetUserId();
-            notification.DateTimeEntered = DateTime.Now;
-            notification.TimeStamp = DateTime.Now;
-            notification.DateTimeModified = DateTime.Now;
-
-            string[] filesToIgnore = AttachmentsToIgnore.Split(new char[] {'|'}, StringSplitOptions.RemoveEmptyEntries);
-            foreach (var file in files)
-            {
-                 if (file == null)
-                    continue;
-
-                var singleOrDefault = filesToIgnore.SingleOrDefault(f => f.EndsWith(file.FileName) == true);
-                if (!string.IsNullOrEmpty(singleOrDefault))
-                    continue;
-
-                if (notification.Attachments == null)
-                    notification.Attachments = new List<Attachment>();
-
-                SaveFile(file);
-
-                BinaryReader b = new BinaryReader(file.InputStream);
-                byte[] binData = b.ReadBytes((int) file.InputStream.Length);
-
-                Attachment attachment = new Attachment
-                {
-                    Name = file.FileName,
-                    DateTimeEntered = DateTime.Now,
-                    EnteredBy = notification.EnteredBy,
-                    TimeStamp = DateTime.Now,
-                    AttachmentContent = binData,
-                    DateTimeModified = DateTime.Now,
-                    ModifiedBy = notification.EnteredBy
-                };
-
-                notification.Attachments.Add(attachment);
-
-            }
-     
-            Context.Notifications.Add(notification);
-            Context.SaveChanges();
+            Notification.SaveFileHandler saveFileHandler = Utils.SaveFile;
+            notification.Create(Context, Server.MapPath("~/UploadedFiles"), files, attachmentsToIgnore.ToArray(new char[] { '|' }), User.Identity.GetUserId(), saveFileHandler);
 
             return RedirectToAction("Index", "MyWall");
         }
 
-
-        private bool SaveFile(HttpPostedFileBase file)
-        {
-            try
-            {
-                if (file.ContentLength > 0)
-                {
-                    string fileName = Path.GetFileName(file.FileName);
-                    if (fileName != null)
-                    {
-                        string path = Path.Combine(Server.MapPath("~/UploadedFiles"), fileName);
-                        file.SaveAs(path);
-                    }
-                }
-                return true;
-            }
-            catch
-            {
-                return false;
-            }
-        }
         #region "Helper Methods"
 
         private void MessageAction(string user)
@@ -202,40 +134,45 @@ namespace brainiespark.Controllers
 
         protected void UpdateNotificationServedDate(Notification notification, bool set = true)
         {
-            var notificationInDbNotification = Context.Notifications.Single(n => (n.Id == notification.Id &&
-                                                                                   n.ToUserId == notification
-                                                                                       .ToUserId));
-            if (notificationInDbNotification != null)
-            {
-                try
-                {
-                    if (set)
-                    {
-                        notificationInDbNotification
-                            .NotificationServed = DateTime.Now;
-                    }
-                    else
-                    {
-                        notificationInDbNotification
-                            .NotificationServed = null;
-                    }
+            #region "ToBeRemoved"
 
-                    notificationInDbNotification.Message =
-                        notificationInDbNotification.Message.PadRight(
-                            Notification.MinMessageLength);
+            //var notificationInDbNotification = Context.Notifications.Single(n => (n.Id == notification.Id &&
+            //                                                                       n.ToUserId == notification
+            //                                                                           .ToUserId));
+            //if (notificationInDbNotification != null)
+            //{
+            //    try
+            //    {
+            //        if (set)
+            //        {
+            //            notificationInDbNotification
+            //                .NotificationServed = DateTime.Now;
+            //        }
+            //        else
+            //        {
+            //            notificationInDbNotification
+            //                .NotificationServed = null;
+            //        }
 
-                    using (var db = new ApplicationDbContext())
-                    {
-                        db.Notifications.Attach(notification);
-                        db.Entry(notification).Property(p => p.NotificationServed).IsModified = true;
-                        db.SaveChanges();
-                    }
-                }
-                catch (DbEntityValidationException e)
-                {
-                    Console.WriteLine(e);
-                }
-            }
+            //        notificationInDbNotification.Message =
+            //            notificationInDbNotification.Message.PadRight(
+            //                Notification.MinMessageLength);
+
+            //        using (var db = new ApplicationDbContext())
+            //        {
+            //            db.Notifications.Attach(notification);
+            //            db.Entry(notification).Property(p => p.NotificationServed).IsModified = true;
+            //            db.SaveChanges();
+            //        }
+            //    }
+            //    catch (DbEntityValidationException e)
+            //    {
+            //        Console.WriteLine(e);
+            //    }
+            //}
+            #endregion
+
+            notification.SetNotificationServedDate(Context, set);
         }
 
         #endregion

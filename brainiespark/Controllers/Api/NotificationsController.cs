@@ -16,11 +16,11 @@ namespace brainiespark.Controllers.Api
 {
     public class NotificationsController : ApiController
     {
-        public ApplicationDbContext Context { get; }
+        private readonly ApplicationDbContext _context;
 
         public NotificationsController()
         {
-            Context = new ApplicationDbContext();
+            _context = ApplicationDbContext.Create();
         }
 
         // PUT /api/notifications/1/flase
@@ -30,13 +30,13 @@ namespace brainiespark.Controllers.Api
             if (!ModelState.IsValid)
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
 
-            var notificationInDb = Context.Notifications.SingleOrDefault(n => n.Id == id &&
+            var notificationInDb =_context.Notifications.SingleOrDefault(n => n.Id == id &&
                                                                                n.ToUserId == User.Identity.GetUserId());
             if (notificationInDb == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 
             notificationInDb.IsActive = false;
-            Context.SaveChanges();
+           _context.SaveChanges();
         }
 
         // PUT /api/notifications/1/flase
@@ -64,8 +64,7 @@ namespace brainiespark.Controllers.Api
 
             string userId = User.Identity.GetUserId();
 
-            List<Notification> notifications = Context.Notifications.Where(n => n.ToUserId == userId &&
-                                                                                 n.IsActive).ToList();
+            var notifications = Utils.GetNotificationMessage(userId, _context);
             try
             {
                 foreach (var notificationInDb in notifications)
@@ -75,12 +74,10 @@ namespace brainiespark.Controllers.Api
                         notificationInDb.Message.PadRight(
                             Notification.MinMessageLength);
 
-                    using (var db = new ApplicationDbContext())
-                    {
-                        db.Notifications.Attach(notificationInDb);
-                        db.Entry(notificationInDb).Property(p => p.NotificationServed).IsModified = true;
-                        db.SaveChanges();
-                    }
+
+                   _context.Notifications.Attach(notificationInDb);
+                   _context.Entry(notificationInDb).Property(p => p.NotificationServed).IsModified = true;
+                   _context.SaveChanges();
                 }
             }
             catch (DbEntityValidationException e)
@@ -115,14 +112,14 @@ namespace brainiespark.Controllers.Api
 
 
             string userId = User.Identity.GetUserId();
-            var notificationInDb = Context.Set<Notification>().Include(m => m.Attachments)
+            var notificationInDb =_context.Set<Notification>().Include(m => m.Attachments)
                 .SingleOrDefault(n => n.Id == id && n.ToUserId == userId);
 
             if (notificationInDb == null)
                 throw new HttpResponseException(HttpStatusCode.NotFound);
 
-            Context.Set<Notification>().Remove(notificationInDb);
-            Context.SaveChanges();
+           _context.Set<Notification>().Remove(notificationInDb);
+           _context.SaveChanges();
         }
 
        

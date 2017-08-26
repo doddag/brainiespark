@@ -49,6 +49,7 @@
       <HintPath>..\packages\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.1.0.3\lib\net45\Microsoft.CodeDom.Providers.DotNetCompilerPlatform.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Microsoft.JScript" />
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -206,6 +207,9 @@
     <Compile Include="Controllers\ManageController.cs" />
     <Compile Include="Controllers\MyWallController.cs" />
     <Compile Include="Controllers\ViewNotificationController.cs" />
+    <Compile Include="Factories\ControllerFactory.cs" />
+    <Compile Include="Factories\IControllerFactory.cs" />
+    <Compile Include="Helpers\Extensions.cs" />
     <Compile Include="Helpers\Helpers.cs" />
     <Compile Include="Migrations\201708151746108_AddedDisplayAttributeToNotification.cs" />
     <Compile Include="Migrations\201708151746108_AddedDisplayAttributeToNotification.Designer.cs">
@@ -237,7 +241,7 @@
     </Compile>
     <Compile Include="Models\Audit.cs" />
     <Compile Include="Models\AuditData.cs" />
-    <Compile Include="Interfaces\IAudit.cs" />
+    <Compile Include="Services\IAudit.cs" />
     <Compile Include="Models\Attachment.cs" />
     <Compile Include="Models\NewNotificationViewModel.cs" />
     <Compile Include="Models\Notification.cs" />

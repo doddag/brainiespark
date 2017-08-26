@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Web;
 using System.Web.Helpers;
@@ -35,25 +36,50 @@ namespace brainiespark.Helpers
         }
     }
 
-    public class Utils
+    public static class Utils
     {
-        public static List<Notification> GetNotificationMessage(string userId, ApplicationDbContext context)
+        public static List<Notification> GetNotificationMessage(string userId, ApplicationDbContext dataSource)
         {
             DateTime dtNow = DateTime.Now.Date;
             List<Notification> notifications;
 
             if (!string.IsNullOrEmpty(userId))
-                notifications = context.Notifications.Where(n => n.ToUserId == userId &&
+                notifications = dataSource.Notifications.Where(n => n.ToUserId == userId &&
                                                                                 n.NotificationExpiry >= dtNow &&
                                                                                 n.IsActive).ToList();
             else
             {
-                 notifications = context.Notifications.Where(n => n.NotificationExpiry >= dtNow &&
+                 notifications = dataSource.Notifications.Where(n => n.NotificationExpiry >= dtNow &&
                                                                  n.IsActive &&
                                                                  n.IsPublic).Include(m => m.Attachments).OrderByDescending(n => n.NotificationDate).ToList();
             }
 
             return notifications;
+        }
+
+        public static byte[] SaveFile(HttpPostedFileBase file, string serverPath)
+        {
+            try
+            {
+                byte[] binData = new byte[] { };
+                if (file.ContentLength > 0)
+                {
+                    string fileName = Path.GetFileName(file.FileName);
+                    if (fileName != null)
+                    {
+                        string path = Path.Combine(serverPath, fileName);
+                        file.SaveAs(path);
+
+                        BinaryReader b = new BinaryReader(file.InputStream);
+                        binData = b.ReadBytes((int)file.InputStream.Length);
+                    }
+                }
+                return binData;
+            }
+            catch
+            {
+                return null;
+            }
         }
     }
 }
