@@ -3,7 +3,7 @@ function addNotification(event, notificationElementId, token) {
     var data = JSON.parse(event.data);
     var notificationPanel = document.getElementById(notificationElementId);
     notificationPanel.innerHTML =
-        "<div class=\"alert alert-dismissible alert-success\"><button notificationId=\"" +
+        "<div class=\"alert alert-dismissible alert-success\" style=\"min-height:125px\"><button notificationId=\"" +
         data.Id +
         "\" type=\"button\" class=\"close\" data-dismiss=\"alert\" onclick=\"OnClose(" +
         data.Id + ",'" + notificationElementId + "','" + token + 
