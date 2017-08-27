@@ -8,11 +8,17 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
+
+
 <div class="panel panel-primary">
     <div class="panel-heading">
         <h3 class="panel-title">Welcome @User.Identity.GetUserName()</h3>
         <audio id="messageArrived" controls="" style="visibility: hidden;">
             <source src="~/Content/sounds/messageArrieved.mp3" type="audio/mpeg" />
+        </audio>
+        <audio id="messageTrashed" controls="" style="visibility: hidden;">
+           <source src="~/Content/sounds/Windows%20Recycle.wav"  />
         </audio>
     </div>
     <div id="notificaionPanelBody" class="panel-body-scroll">
@@ -22,12 +28,10 @@
             <li class="disabled"><a>Disabled</a></li>
             <li class="dropdown">
                 <a class="dropdown-toggle" data-toggle="dropdown" href="#">
-                    Notifications <span class="caret"></span>
+                    Settings <span class="caret"></span>
                 </a>
                 <ul class="dropdown-menu">
-                    <li><a href="#post" data-toggle="tab">Post</a></li>
-                    <li class="divider"></li>
-                    <li><a href="#edit" data-toggle="tab">Modify</a></li>
+                    
                 </ul>
             </li>
         </ul>
@@ -91,7 +95,7 @@
                                                     @Html.ValidationMessageFor(m => m.Notification.ToUserId)
 
                                                     @Html.LabelFor(m => m.Notification.Message)
-                                                    @Html.TextAreaFor(m => m.Notification.Message, 8, 520, new { @class = "form-control" })
+                                                    @Html.TextAreaFor(m => m.Notification.Message, 8, 520, new { @class = "form-control editorHtml" })
                                                     @Html.ValidationMessageFor(m => m.Notification.Message)
                                                    
                                                 </div>
@@ -140,13 +144,12 @@
 <div class="modal" id="modelWindow" align="center">
     <div class="modal-body" >...</div>
     <div id="msg" class="modal-body" style="max-height: 250px">
-        <div class="progress progress-striped active" style="width: 50%">
-            <div class="progress-bar" style="width: 45%"></div>
+        <div class="progress progress-striped active" style="width: 30%">
+            <div class="progress-bar" style="width: 100%"></div>
         </div>
     </div>
 </div>
 
-<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script>
 <script>
 
     @functions
@@ -162,13 +165,12 @@
 
     function OnRead(notificationId, notificationElementId, token) {
         var url = '@Url.Action("ViewNotification", "ViewNotification")';
-        var parm = { id: notificationId };
 
-        $('#msg').load(url, { id: notificationId },
-        function(data1) {
-            var data = $(data1);
-            $("#msg").html(data);
-        });
+        $('#msg').load(url, { id: notificationId }, // TODO: Need to pass Antiforgery Token
+            function(data1) {
+                var data = $(data1);
+                $("#msg").html(data);
+            });
         $('#modelWindow').modal('show');
     }
 

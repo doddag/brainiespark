@@ -50,14 +50,14 @@ namespace brainiespark.Controllers
         }
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
+            ViewBag.Message = "Brainiespark";
 
             return View();
         }
 
         public ActionResult Contact()
         {
-            ViewBag.Message = "Your contact page.";
+            ViewBag.Message = "goutham.reddy.d@gmail.com";
 
             return View();
         }

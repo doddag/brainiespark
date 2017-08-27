@@ -1,7 +1,9 @@
-﻿using System.Data.Entity;
+﻿using System;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Web.Http;
 using System.Web.Mvc;
 using brainiespark.Models;
@@ -19,14 +21,30 @@ namespace brainiespark.Controllers
         }
 
         // GET: ViewNotification
-        public ActionResult ViewNotification(int id, HttpRequestMessage requestMessage)
+        public ActionResult ViewNotification(int? id, HttpRequestMessage requestMessage)
         {
+            // TO DO : Antiforgery Validations
+            /* HttpRequestHeaders h = requestMessage.Headers;
+             try
+             {
+                 var token = h.GetValues("RequestVerificationToken").FirstOrDefault();
+                 string message = "";
+                 if (!Helpers.Security.ValidateAntiForgeryTokens(token, out message))
+                 {
+                     return new EmptyResult();
+                 }
+             }
+             catch (Exception)
+             {
+                 return new EmptyResult();
+             } */
+
             if (!ModelState.IsValid)
             {
                 throw new HttpResponseException(HttpStatusCode.BadRequest);
             }
 
-            if (!Request.IsAuthenticated)
+            if (!Request.IsAuthenticated || !id.HasValue)
                 return RedirectToAction("Login", "Account", new { returnUrl = "" });
 
             var users = Context.Users.ToList();
@@ -43,25 +61,6 @@ namespace brainiespark.Controllers
             };
 
             return View(viewModel);
-
-            /* HttpRequestHeaders h = requestMessage.Headers;
-             try
-             {
-                 var token = h.GetValues("RequestVerificationToken").FirstOrDefault();
-                 string message = "";
-                 if (!Helpers.Security.ValidateAntiForgeryTokens(token, out message))
-                 {
-                     return new EmptyResult();
-                 }
-             }
-             catch (Exception)
-             {
-                 return new EmptyResult();
-             }*/
-
-
-            // notificationInDb.
-            
         }
     }
 }
